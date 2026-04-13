@@ -32,14 +32,23 @@ def save_processed(processed, file="processed_prs.txt"):
 def load_cache():
     with open("branch_cache.json","r") as f:
         cache = json.load(f)
+    branch_url = f"https://api.github.com/repos/{owner}/{projekt}/branches"
+    branches = requests.get(branch_url,headers)
+    branches = branches.json()
+    
+    for branch in branches:
+        cache[branch["name"]] = branch["commit"]["sha"]
+    return cache
     
 def save_cache():
-    return 1
+     with open("branch_cache.json","w") as f:
+        json.dump(cache,f)
     
 
 response = requests.get(url, headers=headers)
 prs = response.json()
-
+cache = load_cache()
+save_cache()
 
 processed = load_processed()
 
