@@ -7,7 +7,7 @@ cache = {}
 owner = "Schulien-J" 
 projekt = "CI-Pipeline"
 
-url = f"https://api.github.com/repos/{owner}/{projekt}/branches"
+url = f"https://api.github.com/repos/{owner}/{projekt}/pulls"
 
 #TODO  add your own token for personal use
 token = keyring.get_password("my_ci_tool", "github_token")
@@ -39,19 +39,18 @@ def save_cache():
 
 response = requests.get(url, headers=headers)
 prs = response.json()
-print(prs)
+
 
 processed = load_processed()
 
 for pr in prs:
     pr_id = str(pr["number"])
-    pr_branch = pr["base"]["ref"]
-    pr_branch_head = pr["base"]["sha"]
-    print(pr_branch, pr_branch_head)
     if pr_id in processed:
         continue
-
-    ph.handle_pr(int(pr_id))
+    pr_branch = pr["base"]["ref"]
+    pr_branch_head = pr["head"]["sha"]
+    print(pr_branch, pr_branch_head)
+    ph.handle_pr(pr_branch, pr_branch_head)
     processed.add(pr_id)
 
 
