@@ -58,7 +58,6 @@ for pr in prs:
         continue
     pr_branch = pr["base"]["ref"]
     pr_branch_head = pr["head"]["sha"]
-    print(pr_branch, pr_branch_head)
     ph.handle_pr(pr_branch, pr_branch_head)
     processed.add(pr_id)
 
