@@ -4,7 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 SRC_DIR = BASE_DIR / "src"
 TEST_DIR = BASE_DIR / "tests"
-print(TEST_DIR)
+
 
 def run(cmd,path):
     result = subprocess.run(cmd, cwd=path, capture_output=True, text=True)
@@ -24,7 +24,7 @@ def handle_pr(pr_branch: str, pr_head: str, remote="origin"):
 
     result = subprocess.run(
         ["git", "merge", pr_head],
-        SRC_DIR,
+        cwd=SRC_DIR,
         capture_output=True,
         text=True
     )

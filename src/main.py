@@ -82,7 +82,6 @@ def main():
             send_feedback("failure",pr_branch_head)
         processed.add(pr_id)
 
-    print(2)
     save_processed(processed)
     return 8
 
