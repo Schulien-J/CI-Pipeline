@@ -23,7 +23,7 @@ def handle_pr(pr_branch: str, pr_head: str, remote="origin"):
             check=True
         )
         merge_result = subprocess.run(
-            ["git", "merge", pr_head],
+            ["git", "merge", "--no-edit", pr_head],
             cwd=repo_dir
         )
         if merge_result.returncode != 0:

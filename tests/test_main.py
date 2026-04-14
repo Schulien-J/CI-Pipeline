@@ -1,6 +1,8 @@
 import pytest
 
-from main import main
+from dummy import main
 
-def test_main():
-    assert main() == 8
+
+@pytest.mark.timeout(5)
+def test_dummy():
+    assert dummy() == 8

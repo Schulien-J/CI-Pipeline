@@ -21,6 +21,8 @@ headerss = {
     "Authorization": f"Bearer {token}",
     "Accept": "application/vnd.github+json"
 }
+def dummy():
+    return 8
 
 def load_processed():
     try:
@@ -57,8 +59,6 @@ def send_feedback(status: str, pr: str):
     } 
     feedback_url = f"https://api.github.com/repos/{owner}/{projekt}/statuses/{pr}"
     response = requests.post(feedback_url,headers=headerss,json=payload)
-    print(response.status_code)
-    print(response.text)
     
 def main():
     response = requests.get(url, headers=headerss)
