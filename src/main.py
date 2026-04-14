@@ -83,7 +83,7 @@ def main():
         processed.add(pr_id)
 
     save_processed(processed)
-    return 8
+    return 7
 
 
 if __name__ == "__main__":
