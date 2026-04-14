@@ -3,7 +3,7 @@ from pathlib import Path
 import tempfile
 import os
 
-repo = "https://github.com/Schulien-J/CI-Pipeline.git"
+repo = "https://github.com/Schulien-J/Monitored-by-CI-Pipeline.git"
 
 def handle_pr(pr_branch: str, pr_head: str, remote="origin"):
     with tempfile.TemporaryDirectory() as tmp_dir:

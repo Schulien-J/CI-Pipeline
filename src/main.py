@@ -11,7 +11,7 @@ PROCESSED_FILE = BASE_DIR / "processed_prs.txt"
 
 cache = {}
 owner = "Schulien-J" 
-projekt = "CI-Pipeline"
+projekt = "Monitored-by-CI-Pipeline"
 
 url = f"https://api.github.com/repos/{owner}/{projekt}/pulls"
 
