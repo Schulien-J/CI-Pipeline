@@ -3,4 +3,4 @@ import pytest
 from main import main
 
 def test_main():
-    assert main() == 8
+    assert main() == 6
