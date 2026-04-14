@@ -17,13 +17,10 @@ url = f"https://api.github.com/repos/{owner}/{projekt}/pulls"
 
 #TODO  add your own token for personal use
 token = keyring.get_password("my_ci_tool", "github_token")
-headers = {
+headerss = {
     "Authorization": f"Bearer {token}",
     "Accept": "application/vnd.github+json"
 }
-
-def dummy():
-    return 4 + 4
 
 def load_processed():
     try:
@@ -41,31 +38,33 @@ def load_cache():
     with open(CACHE_FILE,"r") as f:
         cache = json.load(f)
     branch_url = f"https://api.github.com/repos/{owner}/{projekt}/branches"
-    branches = requests.get(branch_url,headers)
+    branches = requests.get(branch_url,headers=headerss)
     branches = branches.json()
     
     for branch in branches:
         cache[branch["name"]] = branch["commit"]["sha"]
     return cache
     
-def save_cache():
+def save_cache(cache):
      with open(CACHE_FILE,"w") as f:
         json.dump(cache,f)
 
 def send_feedback(status: str, pr: str):
     payload = {
     "state": status,   
-    "context": "Test" + status,
+    "context": "Test " + status,
     "description": status
     } 
     feedback_url = f"https://api.github.com/repos/{owner}/{projekt}/statuses/{pr}"
-    requests.post(url,headers,json=payload)
+    response = requests.post(feedback_url,headers=headerss,json=payload)
+    print(response.status_code)
+    print(response.text)
     
 def main():
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headerss)
     prs = response.json()
     cache = load_cache()
-    save_cache()
+    save_cache(cache)
 
     processed = load_processed()
 
@@ -76,7 +75,7 @@ def main():
         pr_branch = pr["base"]["ref"]
         pr_branch_head = pr["head"]["sha"]
         result = ph.handle_pr(pr_branch, pr_branch_head)
-        if result == 0:
+        if result == 1:
             send_feedback("success",pr_branch_head)
         else:
             send_feedback("failure",pr_branch_head)

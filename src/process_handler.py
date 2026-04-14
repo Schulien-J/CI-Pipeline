@@ -1,40 +1,41 @@
 import subprocess
 from pathlib import Path
+import tempfile
+import os
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-SRC_DIR = BASE_DIR / "src"
-TEST_DIR = BASE_DIR / "tests"
-
-
-def run(cmd,path):
-    result = subprocess.run(cmd, cwd=path, capture_output=True, text=True)
-    if result.returncode != 0:
-        print(result.stdout)
-        print(result.stderr)
-        raise RuntimeError(f"Command failed: {' '.join(cmd)}")
-    return result.stdout
-
-
+repo = "https://github.com/Schulien-J/CI-Pipeline.git"
 
 def handle_pr(pr_branch: str, pr_head: str, remote="origin"):
-    
-    run(["git", "fetch", remote], SRC_DIR)
-    run(["git", "checkout", pr_branch], SRC_DIR)
-    run(["git", "reset", "--hard", f"{remote}/{pr_branch}"], SRC_DIR)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        subprocess.run(
+            ["git", "clone", repo, tmp_dir],
+            check=True
+        )
+        repo_dir = tmp_dir
+        subprocess.run(
+            ["git", "fetch", "origin"],
+            cwd=repo_dir,
+            check=True
+        )
+        subprocess.run(
+            ["git", "checkout", pr_branch],
+            cwd=repo_dir,
+            check=True
+        )
+        merge_result = subprocess.run(
+            ["git", "merge", pr_head],
+            cwd=repo_dir
+        )
+        if merge_result.returncode != 0:
+            return False  
 
-    result = subprocess.run(
-        ["git", "merge", pr_head],
-        cwd=SRC_DIR,
-        capture_output=True,
-        text=True
-    )
-    
-    if result.returncode != 0:
-        return False
-    result = run(["PYTHONPATH=src", "python3","-m","pytest"],TEST_DIR)
-    if result == 0:
-        return True
-    else:
-        return False
+        env = os.environ.copy()
+        env["PYTHONPATH"] = os.path.join(repo_dir, "src")  
+        test_result = subprocess.run(
+            ["python3", "-m", "pytest"],
+            cwd=repo_dir,
+            env=env
+        )
+        return test_result.returncode == 0
     
 
