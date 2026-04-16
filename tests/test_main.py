@@ -1,6 +1,6 @@
 import pytest
 
-from dummy import main
+from main import dummy
 
 
 @pytest.mark.timeout(5)

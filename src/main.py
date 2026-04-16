@@ -21,8 +21,6 @@ headerss = {
     "Authorization": f"Bearer {token}",
     "Accept": "application/vnd.github+json"
 }
-def dummy():
-    return 8
 
 def load_processed():
     try:
@@ -60,7 +58,7 @@ def send_feedback(status: str, pr: str):
     feedback_url = f"https://api.github.com/repos/{owner}/{projekt}/statuses/{pr}"
     response = requests.post(feedback_url,headers=headerss,json=payload)
     
-def main():
+def catch_up():
     response = requests.get(url, headers=headerss)
     prs = response.json()
     cache = load_cache()
@@ -72,8 +70,12 @@ def main():
         pr_id = str(pr["number"])
         if pr_id in processed:
             continue
+        
         pr_branch = pr["base"]["ref"]
         pr_branch_head = pr["head"]["sha"]
+        if not pr_branch or  not pr_branch_head:
+            continue
+
         result = ph.handle_pr(pr_branch, pr_branch_head)
         if result == 1:
             send_feedback("success",pr_branch_head)
@@ -86,6 +88,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    catch_up()
+    #start_server()
 
 #TODO ENTER Webhook loop
