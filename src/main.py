@@ -3,6 +3,7 @@ import keyring
 import process_handler as ph
 import json
 from pathlib import Path
+import time
 
 BASE_DIR = Path(__file__).resolve().parent
 CACHE_FILE = BASE_DIR / "branch_cache.json"
@@ -25,10 +26,11 @@ headerss = {
 def load_processed():
     try:
         with open(PROCESSED_FILE, "r") as f:
-            return set(line.strip() for line in f if line.strip())   #this strips twice
+            return set(line.strip() for line in f if line.strip())   #this strips twice!!!
     except FileNotFoundError:
         return set()
-    
+
+#Try catch / temp file would be better but this part should reallistically never fail
 def save_processed(processed):
     with open(PROCESSED_FILE, "w") as f:
         for pr in processed:
@@ -37,12 +39,14 @@ def save_processed(processed):
 def load_cache():
     with open(CACHE_FILE,"r") as f:
         cache = json.load(f)
+
     branch_url = f"https://api.github.com/repos/{owner}/{projekt}/branches"
     branches = requests.get(branch_url,headers=headerss)
     branches = branches.json()
     
     for branch in branches:
         cache[branch["name"]] = branch["commit"]["sha"]
+
     return cache
     
 def save_cache(cache):
@@ -55,6 +59,7 @@ def send_feedback(status: str, pr: str):
     "context": "Test " + status,
     "description": status
     } 
+
     feedback_url = f"https://api.github.com/repos/{owner}/{projekt}/statuses/{pr}"
     response = requests.post(feedback_url,headers=headerss,json=payload)
     
@@ -63,14 +68,13 @@ def catch_up():
     prs = response.json()
     cache = load_cache()
     save_cache(cache)
-
     processed = load_processed()
 
     for pr in prs:
         pr_id = str(pr["number"])
         if pr_id in processed:
             continue
-        
+
         pr_branch = pr["base"]["ref"]
         pr_branch_head = pr["head"]["sha"]
         if not pr_branch or  not pr_branch_head:
@@ -88,7 +92,7 @@ def catch_up():
 
 
 if __name__ == "__main__":
-    catch_up()
-    #start_server()
+    while True:
+        catch_up()
+        time.sleep(10)
 
-#TODO ENTER Webhook loop
